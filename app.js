@@ -8,7 +8,7 @@ const xss = require('xss-clean')
 const hpp = require('hpp');
 const compression = require('compression')
 const app = express()
-
+app.enable('trust proxy') //heroku work on proxy changes the incming requests
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
 const tourRouter = require('./routes/tourRoutes')
