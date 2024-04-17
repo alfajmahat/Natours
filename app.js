@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp');
+const compression = require('compression')
 const app = express()
 
 const AppError = require('./utils/appError')
@@ -24,15 +25,15 @@ app.set('views', path.join(__dirname, 'views'))
 // Development logging
 console.log(process.env.NODE_ENV)
 if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'))
+  app.use(morgan('dev'))
 }
 
 // implementing rate limiting
 // Limit requests from same API
 const limiter = rateLimit({
-    max: 100,
-    windowMs: 60 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in an hour!'
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!'
 })
 
 app.use('/api', limiter)
@@ -48,19 +49,22 @@ app.use(xss());
 
 // Prevent parameter pollution
 app.use(
-    hpp({
-      whitelist: [
-        'duration',
-        'ratingsQuantity',
-        'ratingsAverage',
-        'maxGroupSize',
-        'difficulty',
-        'price'
-      ]
-    })
-  );
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price'
+    ]
+  })
+);
+
+// compress all the text and json files and messages while send to the client
+app.use(compression())
 // ROUTES
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
   res.status(200).render('base')
 })
 app.use('/api/v1/tours', tourRouter)
@@ -70,7 +74,7 @@ app.use('/api/v1/bookings', bookingRouter)
 
 
 app.all('*', (req, res, next) => {
-    next(new AppError(`can't find the ${req.originalUrl} on this server`, 404));
+  next(new AppError(`can't find the ${req.originalUrl} on this server`, 404));
 });
 
 //call GLOBAL ERROR HANDLER

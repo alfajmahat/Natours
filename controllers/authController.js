@@ -55,7 +55,7 @@ const signup = catchAsync(async (req, res, next) => {
     })
     // send the profile url in email
     const url = `${req.protocol}://${req.get('host')}/me`;
-    console.log(url);
+    // console.log(url);
     // call sendWelcome in email.js
     await new Email(newUser, url).sendWelcome();
 
